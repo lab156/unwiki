@@ -78,6 +78,32 @@ class unwikiTestCase(unittest.TestCase):
         expect = """In the southwest of the city, Staten Island is the southernmost part of both the city and state of New York, with Conference House Park at the southern tip of the island and the state."""
         self.assertEqual(unwiki.loads(markup), expect)
 
+    def testMath(self):
+        markup1 = "the field {{math|'''R'''}} of real numbers"
+        expect1 = "the field _inline_math_ of real numbers"
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        markup2 = "the field {{  math |'''R'''}} of real numbers"
+        expect2 = "the field _inline_math_ of real numbers"
+        self.assertEqual(unwiki.loads(markup2), expect2)
+        # Check the same for the mvar teplate
+        markup1 = "the field {{mvar|'''R'''}} of real numbers"
+        expect1 = "the field _inline_math_ of real numbers"
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        markup2 = "the field {{  mvar |'''R'''}} of real numbers"
+        expect2 = "the field _inline_math_ of real numbers"
+        self.assertEqual(unwiki.loads(markup2), expect2)
+
+        # math tags
+        markup3 = "with a [[norm (mathematics)|norm]] <math>\|\cdot\|_X</math>"
+        expect3 = "with a norm _inline_math_"
+        self.assertEqual(unwiki.loads(markup3), expect3)
+
+    def testBracketFilenames(self):
+        markup = """[[image:050712_perm_3.png|thumb|upright=1.7|Diagram of a cyclic permutation with two fixed points; a 6-cycle and two 1-cycles. |190x190px]]
+A [[permutation]] is called"""
+        expect = "\nA permutation is called"
+        self.assertEqual(unwiki.loads(markup), expect)
+
 
 if __name__ == '__main__':
     unittest.main()

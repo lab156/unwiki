@@ -16,7 +16,10 @@
 
 import re
 
-RE = re.compile(r"""\[\[(File|Category):[\s\S]+\]\]|
+PRE = re.compile(r"""(?P<math>{{\s*(?:math|mvar)\s*\|)(.*?)(?(math)}}|)
+                  """, re.X)
+
+RE = re.compile(r"""\[\[(image|File|Category):[\s\S]+?\]\]|
         \[\[[^|^\]]+\||
         \[\[|
         \]\]|
@@ -26,12 +29,26 @@ RE = re.compile(r"""\[\[(File|Category):[\s\S]+\]\]|
         <ref>[\s\S]+</ref>|
         ={1,6}""", re.VERBOSE)
 
+display_math_regex = re.compile(
+        r"""^:\s*<math>(.*?)</math>$  #Display Math starts with a colon
+         """, re.X|re.S|re.M)
+
+inline_math_regex = re.compile(r"""<math>.*?</math>""", re.X)
+
+inline_string = '_inline_math_'
+display_string = '_display_math_'
+
+
 
 def loads(wiki, compress_spaces=None):
     '''
     Parse a string to remove and replace all wiki markup tags
     '''
+    wiki = PRE.sub(inline_string, wiki)
     result = RE.sub('', wiki)
+    result = display_math_regex.sub('_display_math_', result)
+    result = inline_math_regex.sub('_inline_math_', result)
+
     if compress_spaces:
         result = re.sub(r' +', ' ', result)
 
