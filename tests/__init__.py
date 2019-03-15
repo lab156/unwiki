@@ -120,6 +120,12 @@ A [[permutation]] is called"""
         expect2 = """Jacques Le Goff describes"""
         self.assertEqual(unwiki.loads(markup2), expect2)
 
+    def testBlockRemoval(self):
+        markup1 = "this is a \n<blockquote>\n macizo\nhello\n</blockquote>"
+        expect1 = "this is a \n\n macizo\nhello\n"
+        self.assertEqual(unwiki.loads(markup1), expect1)
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -31,6 +31,7 @@ RE = re.compile(r"""\[\[(image|File|Category):[\s\S]+?\]\]|
         {\|[\s\S\n]+?\|}|    #Tables {| class="wikitable" ... |}
         <ref[\s\S]+?</ref>|
         <ref[\s\S]+?/>|
+        </?(blockquote)>|
         ={1,6}""", re.VERBOSE)
 
 display_math_regex = re.compile(
