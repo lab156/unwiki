@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.#
 
 import re
+import html
+from functools import reduce
 
 PRE = re.compile(r"""(?P<math>{{\s*(?:math|mvar)\s*\|)(.*?)(?(math)}}|)
                   """, re.X)
@@ -26,7 +28,9 @@ RE = re.compile(r"""\[\[(image|File|Category):[\s\S]+?\]\]|
         \'{2,5}|
         (<s>|<!--)[\s\S]+(</s>|-->)|
         {{[\s\S\n]+?}}|
-        <ref>[\s\S]+</ref>|
+        {\|[\s\S\n]+?\|}|    #Tables {| class="wikitable" ... |}
+        <ref[\s\S]+?</ref>|
+        <ref[\s\S]+?/>|
         ={1,6}""", re.VERBOSE)
 
 display_math_regex = re.compile(
@@ -34,6 +38,9 @@ display_math_regex = re.compile(
          """, re.X|re.S|re.M)
 
 inline_math_regex = re.compile(r"""<math>.*?</math>""", re.X)
+
+# Remove the nonbreaking spaces 
+spaces_regex = re.compile(r"&nbsp;")
 
 inline_string = '_inline_math_'
 display_string = '_display_math_'
@@ -44,15 +51,24 @@ def loads(wiki, compress_spaces=None):
     '''
     Parse a string to remove and replace all wiki markup tags
     '''
-    wiki = PRE.sub(inline_string, wiki)
-    result = RE.sub('', wiki)
-    result = display_math_regex.sub('_display_math_', result)
-    result = inline_math_regex.sub('_inline_math_', result)
+    # The format is (regex, string)
+    # every match of the regular expression is substituted with the 
+    # string value
+    regex_list = [(PRE, inline_string), 
+            (RE, ''),
+            (display_math_regex, display_string),
+            (inline_math_regex, inline_string),
+            (spaces_regex, ' ')]
+    # reduce uses the format acum = func(acum, parameter)
+    # so the next function swaps the values 
+    sub_fun = lambda w,P: re.sub(P[0], P[1], w)
+    result = reduce(sub_fun, regex_list, wiki)
+
 
     if compress_spaces:
         result = re.sub(r' +', ' ', result)
 
-    return result
+    return html.unescape(result)
 
 
 def load(stream, compress_spaces=None):

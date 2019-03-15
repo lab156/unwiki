@@ -104,6 +104,22 @@ A [[permutation]] is called"""
         expect = "\nA permutation is called"
         self.assertEqual(unwiki.loads(markup), expect)
 
+    def testHTMLspaces(self):
+        markup1 = "Let  &nbsp;''X''&nbsp;  be a non-negative integer and &nbsp;''n''&nbsp;"
+        expect1 = "Let   X   be a non-negative integer and  n "
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        markup2 = "this should be a &lt;; and a &gt;"
+        expect2 = "this should be a <; and a >"
+        self.assertEqual(unwiki.loads(markup2), expect2)
+
+    def testRefRemoval(self):
+        markup1 = 'the best of a nation.<ref name="AdvisoryCommittee" />  In this way'
+        expect1 = "the best of a nation.  In this way"
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        markup2 = """[[Jacques Le Goff]]<ref name="Le Goff">Le Goff, Jacques. ''La civilisation de l'Occident médieval''. Paris. 1964; English translation (1988): ''Medieval Civilization'', {{ISBN|0-631-17566-0}} &ndash; "translatio imperii" is discussed in Part II, Chapter VI, section on "Time, eternity and history".</ref> describes"""
+        expect2 = """Jacques Le Goff describes"""
+        self.assertEqual(unwiki.loads(markup2), expect2)
+
 
 if __name__ == '__main__':
     unittest.main()
