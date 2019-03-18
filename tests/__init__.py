@@ -125,6 +125,23 @@ A [[permutation]] is called"""
         expect1 = "this is a \n\n macizo\nhello\n"
         self.assertEqual(unwiki.loads(markup1), expect1)
 
+    def testNestedFileBracketRemoval(self):
+        markup1 = """[[File:LA-Triceratops mount-2.jpg|thumb|250px|left|''[[Triceratops]]'' skeleton, [[Natural History Museum of Los Angeles County]]]]
+Under [[phylogenetic nomenclature]], dinosaurs"""
+        expect1 = """\nUnder phylogenetic nomenclature, dinosaurs""" 
+        self.assertEqual(unwiki.loads(markup1), expect1)
+
+    def testREFTagIsConsumedCorrectly(self):
+        markup1 = "hi <ref I should not see this/> And I should see this <ref> this not</ref>"
+        expect1 = "hi  And I should see this "
+        markup2 = "Now <ref>Remove This</ref> and forget <ref about this/>"
+        expect2 = "Now  and forget "
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        self.assertEqual(unwiki.loads(markup2), expect2)
+
+
+        
+
 
 
 if __name__ == '__main__':

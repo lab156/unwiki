@@ -18,10 +18,17 @@ import re
 import html
 from functools import reduce
 
+def paren_matcher (n):
+    # poor man's matched paren scanning, gives up
+    # after n+1 levels.  Matches any string with balanced
+    # parens inside; add the outer parens yourself if needed.
+    # Nongreedy.
+    return r"[^()]*?(?:\[\["*n+r"[^()]*?"+r"\]\][^()]*?)*?"*n
+
 PRE = re.compile(r"""(?P<math>{{\s*(?:math|mvar)\s*\|)(.*?)(?(math)}}|)
                   """, re.X)
 
-RE = re.compile(r"""\[\[(image|File|Category):[\s\S]+?\]\]|
+RE = re.compile(r"""\[\[(image|File|Category):%s\]\]|
         \[\[[^|^\]]+\||
         \[\[|
         \]\]|
@@ -29,10 +36,10 @@ RE = re.compile(r"""\[\[(image|File|Category):[\s\S]+?\]\]|
         (<s>|<!--)[\s\S]+(</s>|-->)|
         {{[\s\S\n]+?}}|
         {\|[\s\S\n]+?\|}|    #Tables {| class="wikitable" ... |}
+        <ref[^<]+?/>|        #This excluded the case <ref ...<ref/> .../>
         <ref[\s\S]+?</ref>|
-        <ref[\s\S]+?/>|
         </?(blockquote)>|
-        ={1,6}""", re.VERBOSE)
+        ={1,6}"""%paren_matcher(3), re.VERBOSE)
 
 display_math_regex = re.compile(
         r"""^:\s*<math>(.*?)</math>$  #Display Math starts with a colon
@@ -56,10 +63,10 @@ def loads(wiki, compress_spaces=None):
     # every match of the regular expression is substituted with the 
     # string value
     regex_list = [(PRE, inline_string), 
-            (RE, ''),
-            (display_math_regex, display_string),
-            (inline_math_regex, inline_string),
-            (spaces_regex, ' ')]
+                    (RE, ''),
+                    (display_math_regex, display_string),
+                    (inline_math_regex, inline_string),
+                    (spaces_regex, ' ')]
     # reduce uses the format acum = func(acum, parameter)
     # so the next function swaps the values 
     sub_fun = lambda w,P: re.sub(P[0], P[1], w)
