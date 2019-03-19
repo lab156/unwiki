@@ -18,12 +18,13 @@ import re
 import html
 from functools import reduce
 
-def paren_matcher (n):
+def paren_matcher (n, d1='\[\[', d2='\]\]'):
     # poor man's matched paren scanning, gives up
     # after n+1 levels.  Matches any string with balanced
     # parens inside; add the outer parens yourself if needed.
     # Nongreedy.
-    return r"[^()]*?(?:\[\["*n+r"[^()]*?"+r"\]\][^()]*?)*?"*n
+    return (r"[^{0}{1}]*?(?:{0}".format(d1,d2))*n+\
+            (r"[^()]*?"+r"%s[^()]*?)*?"%d2)*n
 
 PRE = re.compile(r"""(?P<math>{{\s*(?:math|mvar)\s*\|)(.*?)(?(math)}}|)
                   """, re.X)
@@ -34,12 +35,13 @@ RE = re.compile(r"""\[\[(image|File|Category):%s\]\]|
         \]\]|
         \'{2,5}|
         (<s>|<!--)[\s\S]+(</s>|-->)|
-        {{[\s\S\n]+?}}|
+        {{%s}}|
         {\|[\s\S\n]+?\|}|    #Tables {| class="wikitable" ... |}
         <ref[^<]+?/>|        #This excluded the case <ref ...<ref/> .../>
         <ref[\s\S]+?</ref>|
         </?(blockquote)>|
-        ={1,6}"""%paren_matcher(3), re.VERBOSE)
+        ={1,6}"""%(paren_matcher(3), paren_matcher(3,d1='{{',d2='}}')),
+        re.VERBOSE)
 
 display_math_regex = re.compile(
         r"""^:\s*<math>(.*?)</math>$  #Display Math starts with a colon
@@ -60,7 +62,7 @@ def loads(wiki, compress_spaces=None):
     Parse a string to remove and replace all wiki markup tags
     '''
     # The format is (regex, string)
-    # every match of the regular expression is substituted with the 
+    # every match of the regular expression is substituted with the
     # string value
     regex_list = [(PRE, inline_string), 
                     (RE, ''),

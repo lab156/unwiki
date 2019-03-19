@@ -131,6 +131,17 @@ Under [[phylogenetic nomenclature]], dinosaurs"""
         expect1 = """\nUnder phylogenetic nomenclature, dinosaurs""" 
         self.assertEqual(unwiki.loads(markup1), expect1)
 
+    def testNestedCurlyBracketRemoval(self):
+        markup1 = ''' Trying out {{the removal {{nested curly brackets}}}}'''
+        expect1 = ' Trying out '
+        markup2 = ''' Trying out {{the removal {{nested curly brackets}} this is looking pretty good }}'''
+        expect2 = ' Trying out '
+        markup3 = ''' Trying out If {{nowraplog\'\'f\'\'\'\'x\'\'; \'\'θ\'\')}} is {{nowrap| log θ the removal }}'''
+        expect3 = ' Trying out If  is '
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        self.assertEqual(unwiki.loads(markup2), expect2)
+        self.assertEqual(unwiki.loads(markup3), expect3)
+
     def testREFTagIsConsumedCorrectly(self):
         markup1 = "hi <ref I should not see this/> And I should see this <ref> this not</ref>"
         expect1 = "hi  And I should see this "
@@ -140,7 +151,6 @@ Under [[phylogenetic nomenclature]], dinosaurs"""
         self.assertEqual(unwiki.loads(markup2), expect2)
 
 
-        
 
 
 
