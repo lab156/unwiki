@@ -136,7 +136,7 @@ Under [[phylogenetic nomenclature]], dinosaurs"""
         expect1 = ' Trying out '
         markup2 = ''' Trying out {{the removal {{nested curly brackets}} this is looking pretty good }}'''
         expect2 = ' Trying out '
-        markup3 = ''' Trying out If {{nowraplog\'\'f\'\'\'\'x\'\'; \'\'θ\'\')}} is {{nowrap| log θ the removal }}'''
+        markup3 = ''' Trying out If {{nowrap|log\u2009\'\'f\'\'(\'\'x\'\'; \'\'θ\'\')}} is {{nowrap| log θ the removal }}'''
         expect3 = ' Trying out If  is '
         self.assertEqual(unwiki.loads(markup1), expect1)
         self.assertEqual(unwiki.loads(markup2), expect2)

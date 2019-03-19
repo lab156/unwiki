@@ -23,8 +23,9 @@ def paren_matcher (n, d1='\[\[', d2='\]\]'):
     # after n+1 levels.  Matches any string with balanced
     # parens inside; add the outer parens yourself if needed.
     # Nongreedy.
-    return (r"[^{0}{1}]*?(?:{0}".format(d1,d2))*n+\
-            (r"[^()]*?"+r"%s[^()]*?)*?"%d2)*n
+    return (r"[^{0}{1}]*?(?:{0}".format(d1,d2))*n +\
+            r"[^{0}{1}]*?".format(d1,d2) +\
+            (r"{1}[^{0}{1}]*?)*?".format(d1,d2))*n
 
 PRE = re.compile(r"""(?P<math>{{\s*(?:math|mvar)\s*\|)(.*?)(?(math)}}|)
                   """, re.X)
