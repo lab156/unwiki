@@ -30,7 +30,7 @@ def paren_matcher (n, d1='\[\[', d2='\]\]'):
 PRE = re.compile(r"""(?P<math>{{\s*(?:math|mvar)\s*\|)(.*?)(?(math)}}|)
                   """, re.X)
 
-RE = re.compile(r"""\[\[(image|File|Category):%s\]\]|
+RE = re.compile(r"""\[\[(Image|image|File|Category):%s\]\]|
         \[\[[^|^\]]+\||
         \[\[|
         \]\]|
@@ -48,9 +48,10 @@ display_math_regex = re.compile(
         r"""^:\s*<math>(.*?)</math>$  #Display Math starts with a colon
          """, re.X|re.S|re.M)
 
-inline_math_regex = re.compile(r"""<math>.*?</math>""", re.X)
+inline_math_regex = re.compile(r"""<math>.*?</math>|
+        \w*<(sub|sup)>.*?</(sub|sup)>""", re.X)
 
-# Remove the nonbreaking spaces 
+# Remove the nonbreaking spaces
 spaces_regex = re.compile(r"&nbsp;")
 
 inline_string = '_inline_math_'
@@ -65,13 +66,13 @@ def loads(wiki, compress_spaces=None):
     # The format is (regex, string)
     # every match of the regular expression is substituted with the
     # string value
-    regex_list = [(PRE, inline_string), 
+    regex_list = [(PRE, inline_string),
                     (RE, ''),
                     (display_math_regex, display_string),
                     (inline_math_regex, inline_string),
                     (spaces_regex, ' ')]
     # reduce uses the format acum = func(acum, parameter)
-    # so the next function swaps the values 
+    # so the next function swaps the values
     sub_fun = lambda w,P: re.sub(P[0], P[1], w)
     result = reduce(sub_fun, regex_list, wiki)
 

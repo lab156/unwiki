@@ -151,6 +151,13 @@ Under [[phylogenetic nomenclature]], dinosaurs"""
         self.assertEqual(unwiki.loads(markup2), expect2)
 
 
+    def testMathRemoval(self):
+        markup1 = "If Z<sub>1</sub>, ..., ''Z''<sub>''k''</sub> are"
+        expect1 = "If _inline_math_, ..., _inline_math_ are"
+        markup2 = " (4 × 10<sup>12</sup> watts"
+        expect2 = " (4 × _inline_math_ watts"
+        self.assertEqual(unwiki.loads(markup1), expect1)
+        self.assertEqual(unwiki.loads(markup2), expect2)
 
 
 
